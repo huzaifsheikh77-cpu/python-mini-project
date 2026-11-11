@@ -1,0 +1,7 @@
+emp_id,name,department,basic_salary,hra,other_allowances,pf_deduction,professional_tax,gross_salary,total_deductions,net_salary
+EMP001,Huzaifa,Computer Science,35000.0,8000,2000,2000,200,45000.0,2200,42800.0
+EMP002,Akshat,HR,70000.0,15000,5000,4000,200,90000.0,4200,85800.0
+EMP001,Huzaifa,Computer Science,35000.0,8000,2000,2000,200,45000.0,2200,42800.0
+EMP001,Huzaifa,Computer Science,35000.0,8000,2000,2000,200,45000.0,2200,42800.0
+EMP001,Huzaifa,Computer Science,35000.0,8000,2000,2000,200,45000.0,2200,42800.0
+EMP001,Huzaifa,Computer Science,35000.0,8000,2000,2000,200,45000.0,2200,42800.0
