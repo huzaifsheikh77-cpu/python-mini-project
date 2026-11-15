@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Add Employee' if mode == 'add' else 'Edit Employee' }} &middot; Employee Payroll Management{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ 'Add Employee' if mode == 'add' else 'Edit Employee' }}</h1>
+    <p class="muted">
+      {% if mode == 'add' %}
+        Every field is required. The employee ID must be unique.
+      {% else %}
+        Leave a field unchanged to keep its current value.
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+<div class="card form-card">
+  {% set employee_data = employee if employee is defined else None %}
+
+  <form method="post"
+        action="{{ url_for('employee_add') if mode == 'add' else url_for('employee_edit', emp_id=employee.emp_id) }}">
+    <div class="form-grid">
+      <label>
+        <span>Employee ID</span>
+        {% if mode == 'add' %}
+          <input type="text" name="emp_id" required maxlength="20"
+                 value="{{ form.get('emp_id', '') }}" placeholder="EMP007">
+          <small>Unique code used to identify the employee.</small>
+        {% else %}
+          <input type="text" value="{{ employee.emp_id }}" disabled>
+          <small>Employee ID cannot be changed.</small>
+        {% endif %}
+      </label>
+
+      <label>
+        <span>Employee name</span>
+        <input type="text" name="name" required maxlength="60"
+               value="{{ form.get('name', employee_data.name if employee_data else '') }}"
+               placeholder="Aditya Sharma">
+      </label>
+
+      <label>
+        <span>Department</span>
+        <input type="text" name="department" required maxlength="40"
+               value="{{ form.get('department', employee_data.department if employee_data else '') }}"
+               placeholder="Information Technology">
+      </label>
+
+      <label>
+        <span>Designation</span>
+        <input type="text" name="designation" required maxlength="40"
+               value="{{ form.get('designation', employee_data.designation if employee_data else '') }}"
+               placeholder="Software Developer">
+      </label>
+
+      <label>
+        <span>Basic salary (Rs.)</span>
+        <input type="number" name="basic_salary" step="0.01" min="0.01" required
+               value="{{ form.get('basic_salary', employee_data.basic_salary if employee_data else '') }}"
+               placeholder="55000">
+        <small>Must be greater than zero.</small>
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">
+        {{ 'Add employee' if mode == 'add' else 'Save changes' }}
+      </button>
+      <a class="btn btn-ghost" href="{{ url_for('employees') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

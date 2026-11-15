@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Employee Payroll Management System{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="{{ url_for('dashboard') }}">
+        <span class="brand-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 21V8l9-5 9 5v13"/>
+            <path d="M9 21v-6h6v6"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          Employee Payroll
+          <small>Management System</small>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="Main navigation">
+        <a class="{{ 'active' if active == 'dashboard' }}" href="{{ url_for('dashboard') }}">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="9" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="5" rx="1.5"/>
+            <rect x="14" y="11" width="7" height="10" rx="1.5"/>
+            <rect x="3" y="15" width="7" height="6" rx="1.5"/>
+          </svg>
+          Dashboard
+        </a>
+        <a class="{{ 'active' if active == 'employees' }}" href="{{ url_for('employees') }}">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13A4 4 0 0 1 16 11"/>
+          </svg>
+          Employees
+        </a>
+        <a class="{{ 'active' if active == 'payroll' }}" href="{{ url_for('payroll_new') }}">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2.5" y="5" width="19" height="14" rx="2.5"/>
+            <path d="M2.5 10h19"/>
+            <path d="M6 15h4"/>
+          </svg>
+          Process Payroll
+        </a>
+        <a class="{{ 'active' if active == 'history' }}" href="{{ url_for('payroll_history') }}">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 3-6.7"/>
+            <path d="M3 4v5h5"/>
+            <path d="M12 8v4l3 2"/>
+          </svg>
+          Payroll History
+        </a>
+        <a class="{{ 'active' if active == 'analytics' }}" href="{{ url_for('analytics') }}">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 20V10"/>
+            <path d="M10 20V4"/>
+            <path d="M16 20v-7"/>
+            <path d="M22 20H2"/>
+          </svg>
+          Analytics
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flashes">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    Employee Payroll Management System &middot; Python &middot; Flask &middot; Pandas &middot; Matplotlib &middot; CSV storage
+  </footer>
+</body>
+</html>

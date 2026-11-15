@@ -1,4 +1,8 @@
 emp_id,name,department,designation,basic_salary
-EMP001,Huzaifa,Computer Science,Senior Software Developer,35000
-EMP002,Akshat,HR,HR Executive,70000.0
-EMP 002,HYHYH,MARKETING,LEAD,79999.0
+EMP001,Aditya Sharma,Information Technology,Senior Software Developer,55000
+EMP002,Priya Nair,Human Resources,HR Executive,38000
+EMP003,Rohan Mehta,Finance,Accounts Officer,42000
+EMP004,Sara Fernandes,Marketing,Marketing Lead,50000
+EMP005,Vikram Rao,Operations,Operations Manager,60000
+EMP006,Neha Kulkarni,Information Technology,Junior Developer,32000
+EMP007,Huzaifa,IT,SE,55000

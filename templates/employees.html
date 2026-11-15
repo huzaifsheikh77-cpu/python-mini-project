@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Employees &middot; Employee Payroll Management{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Employees</h1>
+    <p class="muted">{{ total }} employee record{{ '' if total == 1 else 's' }} stored in data/employees.csv.</p>
+  </div>
+  <div class="head-actions">
+    <a class="btn btn-primary" href="{{ url_for('employee_add') }}">+ Add Employee</a>
+  </div>
+</div>
+
+<form class="searchbar" method="get" action="{{ url_for('employees') }}">
+  <input type="search" name="q" value="{{ query }}"
+         placeholder="Search by ID, name, department or designation">
+  <button class="btn btn-ghost" type="submit">Search</button>
+  {% if query %}
+    <a class="link" href="{{ url_for('employees') }}">Clear</a>
+  {% endif %}
+</form>
+
+<div class="card">
+  {% if employees %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Employee ID</th>
+          <th>Name</th>
+          <th>Department</th>
+          <th>Designation</th>
+          <th class="num">Basic salary (Rs.)</th>
+          <th class="num">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for employee in employees %}
+        <tr>
+          <td class="mono">{{ employee.emp_id }}</td>
+          <td><strong>{{ employee.name }}</strong></td>
+          <td>{{ employee.department }}</td>
+          <td>{{ employee.designation }}</td>
+          <td class="num">{{ employee.basic_salary|money }}</td>
+          <td class="num actions">
+            <a class="link" href="{{ url_for('employee_edit', emp_id=employee.emp_id) }}">Edit</a>
+            <form method="post"
+                  action="{{ url_for('employee_delete', emp_id=employee.emp_id) }}"
+                  onsubmit="return confirm('Delete {{ employee.name }}? Saved payroll records are kept as history.');">
+              <button class="link danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% elif query %}
+  <p class="empty">No employee matches "{{ query }}". <a class="link" href="{{ url_for('employees') }}">Show all</a>.</p>
+  {% else %}
+  <p class="empty">No employees yet. <a class="link" href="{{ url_for('employee_add') }}">Add the first employee</a>.</p>
+  {% endif %}
+</div>
+{% endblock %}

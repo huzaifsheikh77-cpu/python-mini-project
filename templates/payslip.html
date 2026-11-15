@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Payslip &middot; Employee Payroll Management{% endblock %}
+
+{% block content %}
+{% if mode == "preview" %}
+  {% set basic = payroll.employee.basic_salary %}
+  {% set hra = payroll.hra %}
+  {% set allowances = payroll.other_allowances %}
+  {% set pf = payroll.pf_deduction %}
+  {% set tax = payroll.professional_tax %}
+  {% set gross = payroll.gross_salary %}
+  {% set deductions = payroll.total_deductions %}
+  {% set net = payroll.net_salary %}
+  {% set emp_id = payroll.employee.emp_id %}
+  {% set name = payroll.employee.name %}
+  {% set department = payroll.employee.department %}
+{% else %}
+  {% set basic = record.basic_salary %}
+  {% set hra = record.hra %}
+  {% set allowances = record.other_allowances %}
+  {% set pf = record.pf_deduction %}
+  {% set tax = record.professional_tax %}
+  {% set gross = record.gross_salary %}
+  {% set deductions = record.total_deductions %}
+  {% set net = record.net_salary %}
+  {% set emp_id = record.emp_id %}
+  {% set name = record.name %}
+  {% set department = record.department %}
+{% endif %}
+
+<div class="page-head no-print">
+  <div>
+    <h1>{{ 'Payslip preview' if mode == 'preview' else 'Payslip' }}</h1>
+    <p class="muted">
+      {% if mode == 'preview' %}
+        Calculated but not yet saved. Review the amounts, then save the record.
+      {% else %}
+        Saved payroll record from data/payroll.csv.
+      {% endif %}
+    </p>
+  </div>
+  <div class="head-actions">
+    <button class="btn btn-ghost" type="button" onclick="window.print()">Print</button>
+    <a class="btn btn-ghost" href="{{ url_for('payroll_history') }}">Back to history</a>
+  </div>
+</div>
+
+<div class="card payslip">
+  <div class="payslip-head">
+    <div>
+      <span class="payslip-org">Employee Payroll Management System</span>
+      <h2>Employee Payslip</h2>
+    </div>
+    <div class="payslip-emp">
+      <strong>{{ name }}</strong>
+      <span class="sub">{{ emp_id }} &middot; {{ department }}</span>
+    </div>
+  </div>
+
+  <div class="payslip-cols">
+    <div>
+      <h3>Earnings</h3>
+      <table class="payslip-table">
+        <tbody>
+          <tr><td>Basic salary</td><td class="num">{{ basic|money }}</td></tr>
+          <tr><td>HRA</td><td class="num">{{ hra|money }}</td></tr>
+          <tr><td>Other allowances</td><td class="num">{{ allowances|money }}</td></tr>
+          <tr class="total-row"><td>Gross salary</td><td class="num">{{ gross|money }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <h3>Deductions</h3>
+      <table class="payslip-table">
+        <tbody>
+          <tr><td>Provident fund (PF)</td><td class="num">{{ pf|money }}</td></tr>
+          <tr><td>Professional tax</td><td class="num">{{ tax|money }}</td></tr>
+          <tr class="total-row"><td>Total deductions</td><td class="num">{{ deductions|money }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="payslip-net">
+    <span>Net salary payable</span>
+    <strong>Rs. {{ net|money }}</strong>
+  </div>
+</div>
+
+{% if mode == "preview" %}
+<div class="card form-card no-print">
+  <h2>Save this payroll record?</h2>
+  <p class="muted small">
+    Saving appends one row to <code>data/payroll.csv</code>. The payslip stays available in Payroll History.
+  </p>
+
+  <form method="post" action="{{ url_for('payroll_save') }}">
+    <input type="hidden" name="emp_id" value="{{ emp_id }}">
+    <input type="hidden" name="hra" value="{{ hra }}">
+    <input type="hidden" name="other_allowances" value="{{ allowances }}">
+    <input type="hidden" name="pf_deduction" value="{{ pf }}">
+    <input type="hidden" name="professional_tax" value="{{ tax }}">
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Save payroll record</button>
+      <a class="btn btn-ghost" href="{{ url_for('payroll_new') }}">Discard &amp; recalculate</a>
+    </div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

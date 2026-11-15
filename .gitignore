@@ -5,3 +5,17 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .vscode/
+server.log
+
+# Local secrets
+.env
+.env.local
+
+# Runtime output
+logs/
+data/backups/
+data/exports/
+charts/.data-signature
+
+# Temporary local PostgreSQL cluster used for verification
+.pgtest/

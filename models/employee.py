@@ -1,5 +1,6 @@
 
 from dataclasses import dataclass
+from decimal import Decimal
 
 
 @dataclass
@@ -8,13 +9,17 @@ class Employee:
     name: str
     department: str
     designation: str
-    basic_salary: float
+    basic_salary: Decimal
 
     def __post_init__(self):
-        self.emp_id = self.emp_id.strip()
-        self.name = self.name.strip()
-        self.department = self.department.strip()
-        self.designation = self.designation.strip()
+        self.emp_id = str(self.emp_id).strip()
+        self.name = str(self.name).strip()
+        self.department = str(self.department).strip()
+        self.designation = str(self.designation).strip()
+
+        # Money is converted to Decimal immediately so that later salary
+        # calculations never suffer from floating point rounding errors.
+        self.basic_salary = Decimal(str(self.basic_salary))
 
         if not self.emp_id:
             raise ValueError("Employee ID cannot be empty.")
@@ -27,6 +32,9 @@ class Employee:
 
         if not self.designation:
             raise ValueError("Designation cannot be empty.")
+
+        if not self.basic_salary.is_finite():
+            raise ValueError("Basic salary must be a finite number.")
 
         if self.basic_salary <= 0:
             raise ValueError("Basic salary must be positive.")

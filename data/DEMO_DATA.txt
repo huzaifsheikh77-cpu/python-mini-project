@@ -1,0 +1,9 @@
+SAMPLE DEMONSTRATION DATA
+=========================
+
+employees.csv and payroll.csv currently contain the sample dataset that
+ships with the project. The names, salaries and payroll amounts are
+fictional and exist only to demonstrate the application.
+
+Restore this dataset:  python scripts/reset_data.py --demo
+Remove all records:    python scripts/reset_data.py --empty

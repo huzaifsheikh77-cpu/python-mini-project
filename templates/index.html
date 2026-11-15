@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Dashboard &middot; Employee Payroll Management{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Dashboard</h1>
+    <p class="muted">Employee records, payroll totals and department payouts at a glance.</p>
+  </div>
+  <div class="head-actions">
+    <a class="btn btn-primary" href="{{ url_for('employee_add') }}">+ Add Employee</a>
+    <a class="btn btn-ghost" href="{{ url_for('payroll_new') }}">Process Payroll</a>
+  </div>
+</div>
+
+{% if demo %}
+<div class="notice">
+  <strong>Sample demonstration data.</strong>
+  The records currently shown are sample data supplied with the project, not real payroll.
+  Restore them at any time with <code>python scripts/reset_data.py --demo</code>,
+  or clear everything with <code>python scripts/reset_data.py --empty</code>.
+</div>
+{% endif %}
+
+<section class="stats">
+  <div class="stat">
+    <div class="stat-top">
+      <span class="stat-label">Employees</span>
+      <span class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+        </svg>
+      </span>
+    </div>
+    <span class="stat-value">{{ employees|length }}</span>
+    <span class="stat-note">records in employees.csv</span>
+  </div>
+
+  <div class="stat">
+    <div class="stat-top">
+      <span class="stat-label">Payroll records</span>
+      <span class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path d="M14 2v6h6"/>
+          <path d="M8 13h8"/>
+          <path d="M8 17h5"/>
+        </svg>
+      </span>
+    </div>
+    <span class="stat-value">{{ summary.count }}</span>
+    <span class="stat-note">transactions in payroll.csv</span>
+  </div>
+
+  <div class="stat">
+    <div class="stat-top">
+      <span class="stat-label">Total net payout</span>
+      <span class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2.5" y="6" width="19" height="12" rx="2.5"/>
+          <circle cx="12" cy="12" r="2.5"/>
+          <path d="M6 12h.01M18 12h.01"/>
+        </svg>
+      </span>
+    </div>
+    <span class="stat-value">Rs. {{ summary.total|money }}</span>
+    <span class="stat-note">sum of all processed payrolls</span>
+  </div>
+
+  <div class="stat">
+    <div class="stat-top">
+      <span class="stat-label">Average net salary</span>
+      <span class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 17l6-6 4 4 7-7"/>
+          <path d="M14 8h6v6"/>
+        </svg>
+      </span>
+    </div>
+    <span class="stat-value">Rs. {{ summary.average|money }}</span>
+    <span class="stat-note">per payroll transaction</span>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head">
+      <h2>Recent payroll</h2>
+      <a class="link" href="{{ url_for('payroll_history') }}">View all</a>
+    </div>
+
+    {% if records %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Department</th>
+            <th class="num">Gross</th>
+            <th class="num">Net</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in records %}
+          <tr>
+            <td>
+              <strong>{{ record.name }}</strong>
+              <span class="sub">{{ record.emp_id }}</span>
+            </td>
+            <td>{{ record.department }}</td>
+            <td class="num">{{ record.gross_salary|money }}</td>
+            <td class="num strong">{{ record.net_salary|money }}</td>
+            <td class="num">
+              <a class="link" href="{{ url_for('payroll_record', index=loop.revindex) }}">Payslip</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="empty">
+      No payroll processed yet.
+      <a class="link" href="{{ url_for('payroll_new') }}">Process the first payroll</a>.
+    </p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>Department payouts</h2>
+      <a class="link" href="{{ url_for('analytics') }}">Analytics</a>
+    </div>
+
+    {% if departments %}
+    <ul class="bars">
+      {% set top = departments[0].total %}
+      {% for row in departments %}
+      <li>
+        <div class="bar-text">
+          <span>{{ row.department }}</span>
+          <span class="strong">Rs. {{ row.total|money }}</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: {{ (row.total / top * 100)|round(1) }}%"></div>
+        </div>
+        <span class="sub">{{ row.count }} transaction{{ '' if row.count == 1 else 's' }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">Department totals appear once payroll has been processed.</p>
+    {% endif %}
+  </div>
+</section>
+
+{% if unprocessed %}
+<div class="card">
+  <div class="card-head">
+    <h2>Employees waiting for payroll</h2>
+  </div>
+  <ul class="chip-list">
+    {% for employee in unprocessed %}
+      <li class="chip">
+        {{ employee.name }}
+        <span class="sub">{{ employee.emp_id }} &middot; {{ employee.department }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endblock %}

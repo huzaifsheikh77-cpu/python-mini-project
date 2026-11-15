@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Process Payroll &middot; Employee Payroll Management{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Process Payroll</h1>
+    <p class="muted">
+      Gross salary = basic + HRA + other allowances.
+      Net salary = gross &minus; PF &minus; professional tax.
+    </p>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card form-card">
+    <form method="post" action="{{ url_for('payroll_new') }}" id="payroll-form">
+      <label>
+        <span>Employee</span>
+        <select name="emp_id" id="emp_id" required>
+          <option value="">Select an employee</option>
+          {% for employee in employees %}
+          <option value="{{ employee.emp_id }}"
+                  data-salary="{{ employee.basic_salary }}"
+                  {{ 'selected' if form.get('emp_id') == employee.emp_id }}>
+            {{ employee.emp_id }} &ndash; {{ employee.name }} ({{ employee.department }})
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <div class="form-grid">
+        <label>
+          <span>HRA (Rs.)</span>
+          <input type="number" name="hra" step="0.01" min="0" required
+                 class="calc" value="{{ form.get('hra', '') }}" placeholder="22000">
+        </label>
+
+        <label>
+          <span>Other allowances (Rs.)</span>
+          <input type="number" name="other_allowances" step="0.01" min="0" required
+                 class="calc" value="{{ form.get('other_allowances', '') }}" placeholder="8000">
+        </label>
+
+        <label>
+          <span>PF deduction (Rs.)</span>
+          <input type="number" name="pf_deduction" step="0.01" min="0" required
+                 class="calc" value="{{ form.get('pf_deduction', '') }}" placeholder="6600">
+        </label>
+
+        <label>
+          <span>Professional tax (Rs.)</span>
+          <input type="number" name="professional_tax" step="0.01" min="0" required
+                 class="calc" value="{{ form.get('professional_tax', '') }}" placeholder="200">
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Calculate &amp; preview payslip</button>
+        <a class="btn btn-ghost" href="{{ url_for('dashboard') }}">Cancel</a>
+      </div>
+
+      <p class="muted small">
+        Amounts are validated on the server. Deductions may not exceed the gross salary.
+      </p>
+    </form>
+  </div>
+
+  <div class="card preview-card">
+    <h2>Live calculation</h2>
+
+    <dl class="calc-list" id="preview">
+      <div><dt>Basic salary</dt><dd id="p-basic">&ndash;</dd></div>
+      <div><dt>Gross salary</dt><dd id="p-gross">&ndash;</dd></div>
+      <div><dt>Total deductions</dt><dd id="p-deductions">&ndash;</dd></div>
+      <div class="calc-net"><dt>Net salary</dt><dd id="p-net">&ndash;</dd></div>
+    </dl>
+
+    <p class="muted small" id="p-message">
+      Select an employee and enter the amounts to see the calculated salary.
+    </p>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("payroll-form");
+  const empSelect = document.getElementById("emp_id");
+  const message = document.getElementById("p-message");
+
+  function format(value) {
+    return "Rs. " + Number(value).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  async function recalculate() {
+    if (!empSelect.value) return;
+
+    const payload = {
+      emp_id: empSelect.value,
+      hra: form.hra.value,
+      other_allowances: form.other_allowances.value,
+      pf_deduction: form.pf_deduction.value,
+      professional_tax: form.professional_tax.value
+    };
+
+    try {
+      const response = await fetch("/api/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (!data.ok) {
+        message.textContent = data.error;
+        message.className = "error-text small";
+        return;
+      }
+
+      document.getElementById("p-basic").textContent = format(data.basic_salary);
+      document.getElementById("p-gross").textContent = format(data.gross_salary);
+      document.getElementById("p-deductions").textContent = format(data.total_deductions);
+      document.getElementById("p-net").textContent = format(data.net_salary);
+
+      message.textContent = "Calculated by the Python backend (models/payroll.py).";
+      message.className = "muted small";
+    } catch (error) {
+      message.textContent = "Live calculation is unavailable. Submit the form to calculate on the server.";
+      message.className = "muted small";
+    }
+  }
+
+  form.querySelectorAll(".calc").forEach((input) => {
+    input.addEventListener("input", recalculate);
+  });
+
+  empSelect.addEventListener("change", recalculate);
+</script>
+{% endblock %}

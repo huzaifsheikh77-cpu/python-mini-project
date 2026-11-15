@@ -14,6 +14,9 @@ PAYROLL_FILE = DATA_DIR / "payroll.csv"
 
 
 class CSVManager:
+    """Local CSV storage backend (development, offline demo, import/export)."""
+
+    name = "csv"
 
     @staticmethod
     def initialize_files():
@@ -83,7 +86,7 @@ class CSVManager:
                         name=row["name"],
                         department=row["department"],
                         designation=row["designation"],
-                        basic_salary=float(row["basic_salary"])
+                        basic_salary=row["basic_salary"]
                     )
                 )
 
@@ -116,6 +119,68 @@ class CSVManager:
 
         with PAYROLL_FILE.open("r", newline="", encoding="utf-8") as file:
             return list(csv.DictReader(file))
+
+    @staticmethod
+    def update_employee(emp_id, name=None, department=None,
+                        designation=None, basic_salary=None):
+
+        employees = CSVManager.load_employees()
+
+        for index, employee in enumerate(employees):
+
+            if employee.emp_id == emp_id:
+
+                updated_employee = Employee(
+                    emp_id=employee.emp_id,
+                    name=name if name is not None else employee.name,
+                    department=department if department is not None else employee.department,
+                    designation=designation if designation is not None else employee.designation,
+                    basic_salary=basic_salary if basic_salary is not None else employee.basic_salary
+                )
+
+                employees[index] = updated_employee
+
+                CSVManager.replace_employees(employees)
+
+                return updated_employee
+
+        return None
+
+    @staticmethod
+    def delete_employee(emp_id):
+
+        employees = CSVManager.load_employees()
+
+        remaining = [
+            employee for employee in employees
+            if employee.emp_id != emp_id
+        ]
+
+        if len(remaining) == len(employees):
+            return False
+
+        CSVManager.replace_employees(remaining)
+
+        return True
+
+    @staticmethod
+    def existing_source_refs():
+        """The CSV backend has no import bookkeeping; nothing is imported."""
+
+        return set()
+
+    @staticmethod
+    def data_signature():
+        """Fingerprint of payroll.csv, used to refresh charts."""
+
+        CSVManager.initialize_files()
+
+        try:
+            stat = PAYROLL_FILE.stat()
+        except OSError:
+            return "csv:0:0"
+
+        return f"csv:{stat.st_size}:{stat.st_mtime_ns}"
 
     @staticmethod
     def replace_employees(employees):

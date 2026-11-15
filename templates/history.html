@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Payroll History &middot; Employee Payroll Management{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Payroll History</h1>
+    <p class="muted">Every saved payroll transaction, newest first.</p>
+  </div>
+  <div class="head-actions">
+    <a class="btn btn-primary" href="{{ url_for('payroll_new') }}">Process Payroll</a>
+  </div>
+</div>
+
+<section class="stats stats-3">
+  <div class="stat">
+    <div class="stat-top">
+      <span class="stat-label">Transactions</span>
+      <span class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path d="M14 2v6h6"/>
+          <path d="M8 13h8"/>
+          <path d="M8 17h5"/>
+        </svg>
+      </span>
+    </div>
+    <span class="stat-value">{{ summary.count }}</span>
+  </div>
+
+  <div class="stat">
+    <div class="stat-top">
+      <span class="stat-label">Total paid out</span>
+      <span class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2.5" y="6" width="19" height="12" rx="2.5"/>
+          <circle cx="12" cy="12" r="2.5"/>
+        </svg>
+      </span>
+    </div>
+    <span class="stat-value">Rs. {{ summary.total|money }}</span>
+  </div>
+
+  <div class="stat">
+    <div class="stat-top">
+      <span class="stat-label">Average net salary</span>
+      <span class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 17l6-6 4 4 7-7"/>
+          <path d="M14 8h6v6"/>
+        </svg>
+      </span>
+    </div>
+    <span class="stat-value">Rs. {{ summary.average|money }}</span>
+  </div>
+</section>
+
+<div class="card">
+  {% if records %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Employee</th>
+          <th>Department</th>
+          <th class="num">Basic</th>
+          <th class="num">Gross</th>
+          <th class="num">Deductions</th>
+          <th class="num">Net salary</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in records %}
+        <tr>
+          <td class="mono">{{ loop.index }}</td>
+          <td>
+            <strong>{{ record.name }}</strong>
+            <span class="sub">{{ record.emp_id }}</span>
+          </td>
+          <td>{{ record.department }}</td>
+          <td class="num">{{ record.basic_salary|money }}</td>
+          <td class="num">{{ record.gross_salary|money }}</td>
+          <td class="num">{{ record.total_deductions|money }}</td>
+          <td class="num strong">{{ record.net_salary|money }}</td>
+          <td class="num">
+            <a class="link" href="{{ url_for('payroll_record', index=loop.index) }}">Payslip</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty">
+    No payroll records yet.
+    <a class="link" href="{{ url_for('payroll_new') }}">Process the first payroll</a>.
+  </p>
+  {% endif %}
+</div>
+
+<p class="muted small">
+  Records store a snapshot of the employee name, department and basic salary at the time of processing.
+</p>
+{% endblock %}

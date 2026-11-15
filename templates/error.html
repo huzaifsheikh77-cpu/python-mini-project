@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} &middot; Employee Payroll Management{% endblock %}
+
+{% block content %}
+<div class="card error-card">
+  <span class="error-code">{{ code }}</span>
+  <h1>{{ title }}</h1>
+  <p class="muted">{{ message }}</p>
+  <div class="form-actions">
+    <a class="btn btn-primary" href="{{ url_for('dashboard') }}">Back to dashboard</a>
+    <a class="btn btn-ghost" href="{{ url_for('employees') }}">Employees</a>
+  </div>
+</div>
+{% endblock %}

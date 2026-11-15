@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Analytics &middot; Employee Payroll Management{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Payroll Analytics</h1>
+    <p class="muted">Computed with Pandas; charts drawn with Matplotlib and served as PNG images.</p>
+  </div>
+  <div class="head-actions">
+    <a class="btn btn-ghost" href="{{ url_for('analytics', refresh=1) }}">Regenerate charts</a>
+  </div>
+</div>
+
+{% if summary %}
+<section class="stats">
+  <div class="stat">
+    <div class="stat-top">
+      <span class="stat-label">Payroll records</span>
+      <span class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path d="M14 2v6h6"/>
+          <path d="M8 13h8"/>
+          <path d="M8 17h5"/>
+        </svg>
+      </span>
+    </div>
+    <span class="stat-value">{{ summary.total_records }}</span>
+  </div>
+
+  <div class="stat">
+    <div class="stat-top">
+      <span class="stat-label">Total expenditure</span>
+      <span class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2.5" y="6" width="19" height="12" rx="2.5"/>
+          <circle cx="12" cy="12" r="2.5"/>
+        </svg>
+      </span>
+    </div>
+    <span class="stat-value">Rs. {{ summary.total_expenditure|money }}</span>
+  </div>
+
+  <div class="stat">
+    <div class="stat-top">
+      <span class="stat-label">Average net salary</span>
+      <span class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 17l6-6 4 4 7-7"/>
+          <path d="M14 8h6v6"/>
+        </svg>
+      </span>
+    </div>
+    <span class="stat-value">Rs. {{ summary.average_salary|money }}</span>
+  </div>
+
+  <div class="stat">
+    <div class="stat-top">
+      <span class="stat-label">Highest net salary</span>
+      <span class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 20V10"/>
+          <path d="M10 20V4"/>
+          <path d="M16 20v-7"/>
+          <path d="M22 20H2"/>
+        </svg>
+      </span>
+    </div>
+    <span class="stat-value">Rs. {{ summary.highest_salary|money }}</span>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head">
+      <h2>Department summary</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th class="num">Employees</th>
+            <th class="num">Total paid</th>
+            <th class="num">Average</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in departments %}
+          <tr>
+            <td>{{ row.department }}</td>
+            <td class="num">{{ row.employees }}</td>
+            <td class="num strong">{{ row.total|money }}</td>
+            <td class="num">{{ row.average|money }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="muted small">Lowest net salary: Rs. {{ summary.lowest_salary|money }}</p>
+  </div>
+
+  <div class="card chart-card">
+    <div class="card-head"><h2>Department payroll distribution</h2></div>
+    <img class="chart" src="{{ chart_urls.department }}?v={{ cache_token }}"
+         alt="Pie chart of department-wise payroll distribution">
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card chart-card">
+    <div class="card-head"><h2>Net salary comparison</h2></div>
+    <img class="chart" src="{{ chart_urls.comparison }}?v={{ cache_token }}"
+         alt="Bar chart comparing net salary of each employee">
+  </div>
+
+  <div class="card chart-card">
+    <div class="card-head"><h2>Salary distribution</h2></div>
+    <img class="chart" src="{{ chart_urls.distribution }}?v={{ cache_token }}"
+         alt="Histogram of net salary distribution">
+  </div>
+</section>
+{% else %}
+<div class="card">
+  <p class="empty">
+    Analytics need at least one payroll record.
+    <a class="link" href="{{ url_for('payroll_new') }}">Process a payroll</a>.
+  </p>
+</div>
+{% endif %}
+{% endblock %}

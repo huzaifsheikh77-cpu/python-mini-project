@@ -4,7 +4,7 @@ from decimal import Decimal, InvalidOperation
 from models.employee import Employee
 from models.payroll import Payroll
 
-from storage.csv_manager import CSVManager
+from storage.backend import get_store, init_storage
 from services.employee_service import EmployeeService
 
 from analytics.salary_analysis import SalaryAnalysis
@@ -212,7 +212,7 @@ def process_payroll():
         ).strip().lower()
 
         if confirmation == "yes":
-            CSVManager.save_payroll(payroll)
+            get_store().save_payroll(payroll)
             print("Payroll record saved successfully.")
         else:
             print("Payroll record not saved.")
@@ -224,7 +224,7 @@ def process_payroll():
 def view_payroll_records():
     print("\n========== PAYROLL HISTORY ==========")
 
-    records = CSVManager.load_payroll_records()
+    records = get_store().load_payroll_records()
 
     print(f"Total records found: {len(records)}")
 
@@ -289,7 +289,7 @@ def display_menu():
 
 
 def main():
-    CSVManager.initialize_files()
+    init_storage()
 
     print("\nWelcome to Employee Payroll Management System!")
 
@@ -297,43 +297,32 @@ def main():
         display_menu()
         choice = input("Enter your choice (1-10): ").strip()
 
-        print(f"\nYou entered: {choice}", flush=True)
-
         try:
             if choice == "1":
-                print("Running Add Employee...", flush=True)
                 add_employee()
 
             elif choice == "2":
-                print("Running View Employees...", flush=True)
                 view_employees()
 
             elif choice == "3":
-                print("Running Search Employee...", flush=True)
                 search_employee()
 
             elif choice == "4":
-                print("Running Update Employee...", flush=True)
                 update_employee()
 
             elif choice == "5":
-                print("Running Delete Employee...", flush=True)
                 delete_employee()
 
             elif choice == "6":
-                print("Running Process Payroll...", flush=True)
                 process_payroll()
 
             elif choice == "7":
-                print("Running Payroll History...", flush=True)
                 view_payroll_records()
 
             elif choice == "8":
-                print("Running Salary Analytics...", flush=True)
                 salary_analytics()
 
             elif choice == "9":
-                print("Running Generate Charts...", flush=True)
                 generate_charts()
 
             elif choice == "10":
@@ -344,9 +333,8 @@ def main():
                 print("Invalid choice. Please select 1-10.")
 
         except Exception as error:
-            print(f"\nERROR: {type(error).__name__}: {error}")
-            import traceback
-            traceback.print_exc()
+            print(f"\nUnexpected error: {type(error).__name__}: {error}")
+            print("The action was cancelled. Please try again.")
 
         input("\nPress Enter to return to the main menu...")
 
